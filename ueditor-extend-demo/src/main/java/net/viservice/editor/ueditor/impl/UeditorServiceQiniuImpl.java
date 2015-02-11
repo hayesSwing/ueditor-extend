@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
 import com.baidu.ueditor.define.AppInfo;
 import com.baidu.ueditor.define.BaseState;
 import com.baidu.ueditor.define.MultiState;
@@ -53,8 +52,6 @@ public class UeditorServiceQiniuImpl implements UeditorService {
 
 			PutRet putRet = QiniuUtil.uploadFileByInputStream(multipartFile);
 			
-			logger.error("putRet.json:" + JSON.toJSONString(putRet));
-
 			if (putRet.ok()) {
 				state = new BaseState(true);
 				state.putInfo("size", multipartFile.getSize());

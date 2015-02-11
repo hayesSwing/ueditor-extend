@@ -1,7 +1,5 @@
 package net.viservice.controller;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,12 +30,12 @@ public class UeditorController {
 
 	@RequestMapping(value = "execute")
 	@ResponseBody
-	public String execute(HttpServletRequest request, HttpServletResponse response, Model model) throws UnsupportedEncodingException {
+	public String execute(HttpServletRequest request, HttpServletResponse response, Model model) {
 		String rootPath = request.getServletContext().getRealPath("/");
 		String resultMsg = new UeditorActionEnter(request, rootPath, this.ueditoreService).exec();
-
+		
 		logger.error("ueditor execute ... resultMsg:" + UnicodeUtil.fromUnicode(resultMsg));
-
+		
 		return resultMsg;
 	}
 

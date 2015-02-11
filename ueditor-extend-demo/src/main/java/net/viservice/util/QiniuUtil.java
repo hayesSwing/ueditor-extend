@@ -73,5 +73,5 @@ public class QiniuUtil {
 		PutRet ret = IoApi.Put(uptoken, key, is, extra);
 		return ret;
 	}
-	
+
 }

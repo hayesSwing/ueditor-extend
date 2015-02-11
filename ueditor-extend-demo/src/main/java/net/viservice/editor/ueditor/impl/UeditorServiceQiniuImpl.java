@@ -7,10 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 import net.viservice.editor.ueditor.UeditorService;
 import net.viservice.util.QiniuUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.alibaba.fastjson.JSON;
 import com.baidu.ueditor.define.AppInfo;
 import com.baidu.ueditor.define.BaseState;
 import com.baidu.ueditor.define.MultiState;
@@ -21,8 +24,10 @@ import com.qiniu.api.io.PutRet;
  * UeditorService实现 - qiniu
  */
 @Component("UeditorServiceQiniuImpl")
-public class UeditorServiceQiniuImpl implements UeditorService{
-
+public class UeditorServiceQiniuImpl implements UeditorService {
+	
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+	
 	@Override
 	public net.viservice.editor.MultipartFile getMultipartFile(String filedName, HttpServletRequest request) {
 		net.viservice.editor.MultipartFile resultFile = null;
@@ -45,9 +50,12 @@ public class UeditorServiceQiniuImpl implements UeditorService{
 			if (multipartFile.getSize() > maxSize) {
 				return new BaseState(false, AppInfo.MAX_SIZE);
 			}
-			
+
 			PutRet putRet = QiniuUtil.uploadFileByInputStream(multipartFile);
-			if (putRet != null) {
+			
+			logger.error("putRet.json:" + JSON.toJSONString(putRet));
+
+			if (putRet.ok()) {
 				state = new BaseState(true);
 				state.putInfo("size", multipartFile.getSize());
 				state.putInfo("title", multipartFile.getOriginalFilename());
@@ -56,19 +64,21 @@ public class UeditorServiceQiniuImpl implements UeditorService{
 				// 把上传的文件信息记入数据库
 				// ---自行处理---
 				return state;
+			} else {
+				logger.error("文件上传失败，请检查配置参数是否正确！");
 			}
 		} catch (IOException e) {
-			
+
 		}
 		return new BaseState(false, AppInfo.IO_ERROR);
 	}
-	
+
 	@Override
 	public State saveBinaryFile(byte[] data, String fileName) {
 		State state = null;
 		try {
 			PutRet putRet = QiniuUtil.uploadFileByByteArray(data);
-			if (putRet != null) {
+			if (putRet.ok()) {
 				state = new BaseState(true);
 				state.putInfo("size", data.length);
 				state.putInfo("title", fileName);
@@ -77,13 +87,15 @@ public class UeditorServiceQiniuImpl implements UeditorService{
 				// 把上传的文件信息记入数据库
 				// ---自行处理---
 				return state;
+			} else {
+				logger.error("文件上传失败，请检查配置参数是否正确！");
 			}
 		} catch (IOException e) {
 
 		}
 		return new BaseState(false, AppInfo.IO_ERROR);
 	}
-	
+
 	@Override
 	public State listFile(String[] allowFiles, int start, int pageSize) {
 		// 把计入数据库中的文件信息读取出来，返回即可
@@ -94,5 +106,5 @@ public class UeditorServiceQiniuImpl implements UeditorService{
 		state.putInfo("total", 0);
 		return state;
 	}
-	
+
 }

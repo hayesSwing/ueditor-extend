@@ -1,0 +1,10 @@
+/target
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+/logs
+
